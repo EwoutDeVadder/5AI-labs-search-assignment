@@ -88,43 +88,115 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-
-
-
+    
     startTuple = problem.getStartState()
 
     if problem.isGoalState(startTuple):
         return []
 
     stack = util.Stack()
+    visited = dict()
+
     successors = problem.getSuccessors(startTuple)
     for successor in successors:
         stack.push((successor, [successor[1]]))
+    
+    visited[startTuple] = True
+    while not stack.isEmpty():
+        currentState, path = stack.pop()
+        #print(currentState[0], path)
 
-    currentState, path = stack.pop()
+        if problem.isGoalState(currentState[0]):
+            return path
 
-    while not problem.isGoalState(currentState[0]):
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
-            path.append(successor[1])
-            stack.push((successor, path))
+            if visited.get(successor[0]) != True:
+                stack.push((successor, path + [successor[1]]))
+        
+        visited[currentState[0]] = True
 
-        currentState, path = stack.pop()
-
-    return path
+    return []
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    startTuple = problem.getStartState()
+    
+    if problem.isGoalState(startTuple):
+        return []
+
+    queue = util.Queue()
+    visited = dict()
+
+    successors = problem.getSuccessors(startTuple)
+    for successor in successors:
+        queue.push((successor, [successor[1]]))
+    
+    visited[startTuple] = True
+    while not queue.isEmpty():
+        currentState, path = queue.pop()
+        #print(currentState[0], path)
+        
+        if problem.isGoalState(currentState[0]):
+            return path
+
+        successors = problem.getSuccessors(currentState[0])
+        for successor in successors:
+            if visited.get(successor[0]) != True:
+                queue.push((successor, path + [successor[1]]))
+        
+        visited[currentState[0]] = True
+
+    return []
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+
+    startTuple = problem.getStartState()
+
+    # If start point is goal state return no path
+    if problem.isGoalState(startTuple):
+        return []
+
+    queue = util.PriorityQueue()
+    visited = dict()
+
+    # initial fill stack/queue
+    successors = problem.getSuccessors(startTuple)
+    for successor in successors:
+        queue.push((successor, [successor[1]], successor[2]), successor[2])
+
+    """
+    Take the current state and check if it's a goal
+    -> yes: return path
+    -> no: continue
+    Get neighbouring paths, if not yet visited
+    
+    """
+    visited[startTuple] = True
+    while not queue.isEmpty():
+        currentState, path, cost = queue.pop()
+        #print(currentState[0], path, cost)
+        
+        if problem.isGoalState(currentState[0]):
+            return path
+
+        # Avoid unnecessary calls
+        if visited.get(currentState[0]) == True: continue 
+
+        successors = problem.getSuccessors(currentState[0])
+        for successor in successors:
+            if visited.get(successor[0]) != True:
+                queue.push((successor, path + [successor[1]], cost + successor[2]), cost + successor[2])
+        
+        visited[currentState[0]] = True
+
+    return []
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -137,6 +209,36 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    startTuple = problem.getStartState()
+            
+    if problem.isGoalState(startTuple):
+        return []
+
+    queue = util.PriorityQueue()
+    visited = dict()
+
+    successors = problem.getSuccessors(startTuple)
+    for successor in successors:
+        queue.push((successor, [successor[1]], successor[2]), successor[2] + heuristic(successor[0], problem))
+    
+    visited[startTuple] = True
+    while not queue.isEmpty():
+        currentState, path, cost = queue.pop()
+        print(currentState[0], path, cost + heuristic(successor[0], problem))
+        
+        if problem.isGoalState(currentState[0]):
+            return path
+
+        if visited.get(currentState[0]) == True: continue
+        
+        successors = problem.getSuccessors(currentState[0])
+        for successor in successors:
+            if visited.get(successor[0]) != True:
+                queue.push((successor, path + [successor[1]], cost + successor[2]), cost + successor[2] + heuristic(successor[0], problem))
+        
+        visited[currentState[0]] = True
+
+    return []
     util.raiseNotDefined()
 
 
