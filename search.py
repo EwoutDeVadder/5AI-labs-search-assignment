@@ -95,13 +95,13 @@ def depthFirstSearch(problem):
         return []
 
     stack = util.Stack()
-    visited = dict()
+    visited = set() # sets can only store a value ONCE meaning no duplicates
 
     successors = problem.getSuccessors(startTuple)
     for successor in successors:
         stack.push((successor, [successor[1]]))
     
-    visited[startTuple] = True
+    visited.add(startTuple)
     while not stack.isEmpty():
         currentState, path = stack.pop()
         #print(currentState[0], path)
@@ -111,10 +111,10 @@ def depthFirstSearch(problem):
 
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
-            if visited.get(successor[0]) != True:
+            if not successor[0] in visited:
                 stack.push((successor, path + [successor[1]]))
         
-        visited[currentState[0]] = True
+        visited.add(currentState[0])
 
     return []
     util.raiseNotDefined()
@@ -128,13 +128,13 @@ def breadthFirstSearch(problem):
         return []
 
     queue = util.Queue()
-    visited = dict()
+    visited = set()
 
     successors = problem.getSuccessors(startTuple)
     for successor in successors:
         queue.push((successor, [successor[1]]))
     
-    visited[startTuple] = True
+    visited.add(startTuple)
     while not queue.isEmpty():
         currentState, path = queue.pop()
         #print(currentState[0], path)
@@ -144,10 +144,10 @@ def breadthFirstSearch(problem):
 
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
-            if visited.get(successor[0]) != True:
+            if not successor[0] in visited:
                 queue.push((successor, path + [successor[1]]))
         
-        visited[currentState[0]] = True
+        visited.add(currentState[0])
 
     return []
     util.raiseNotDefined()
@@ -163,7 +163,7 @@ def uniformCostSearch(problem):
         return []
 
     queue = util.PriorityQueue()
-    visited = dict()
+    visited = set()
 
     # initial fill stack/queue
     successors = problem.getSuccessors(startTuple)
@@ -177,7 +177,7 @@ def uniformCostSearch(problem):
     Get neighbouring paths, if not yet visited
     
     """
-    visited[startTuple] = True
+    visited.add(startTuple)
     while not queue.isEmpty():
         currentState, path, cost = queue.pop()
         #print(currentState[0], path, cost)
@@ -186,14 +186,14 @@ def uniformCostSearch(problem):
             return path
 
         # Avoid unnecessary calls
-        if visited.get(currentState[0]) == True: continue 
+        if currentState[0] in visited: continue 
 
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
-            if visited.get(successor[0]) != True:
+            if not currentState[0] in visited:
                 queue.push((successor, path + [successor[1]], cost + successor[2]), cost + successor[2])
         
-        visited[currentState[0]] = True
+        visited.add(currentState[0])
 
     return []
 
@@ -215,13 +215,13 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         return []
 
     queue = util.PriorityQueue()
-    visited = dict()
+    visited = set()
 
     successors = problem.getSuccessors(startTuple)
     for successor in successors:
         queue.push((successor, [successor[1]], successor[2]), successor[2] + heuristic(successor[0], problem))
     
-    visited[startTuple] = True
+    visited.add(startTuple)
     while not queue.isEmpty():
         currentState, path, cost = queue.pop()
         print(currentState[0], path, cost + heuristic(successor[0], problem))
@@ -229,14 +229,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if problem.isGoalState(currentState[0]):
             return path
 
-        if visited.get(currentState[0]) == True: continue
+        if currentState[0] in visited: continue
         
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
-            if visited.get(successor[0]) != True:
+            if not currentState[0] in visited:
                 queue.push((successor, path + [successor[1]], cost + successor[2]), cost + successor[2] + heuristic(successor[0], problem))
         
-        visited[currentState[0]] = True
+        visited.add(currentState[0])
 
     return []
     util.raiseNotDefined()
