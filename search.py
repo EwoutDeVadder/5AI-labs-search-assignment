@@ -109,6 +109,9 @@ def depthFirstSearch(problem):
         if problem.isGoalState(currentState[0]):
             return path
 
+        # Avoid unnecessary calls
+        if currentState[0] in visited: continue 
+
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
             if not successor[0] in visited:
@@ -141,6 +144,9 @@ def breadthFirstSearch(problem):
         
         if problem.isGoalState(currentState[0]):
             return path
+
+        # Avoid unnecessary calls NECESSARY here -> exponential calls, needs too much computing power if not added
+        if currentState[0] in visited: continue 
 
         successors = problem.getSuccessors(currentState[0])
         for successor in successors:
@@ -224,7 +230,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     visited.add(startTuple)
     while not queue.isEmpty():
         currentState, path, cost = queue.pop()
-        print(currentState[0], path, cost + heuristic(successor[0], problem))
+        #print(currentState[0], path, cost + heuristic(successor[0], problem))
         
         if problem.isGoalState(currentState[0]):
             return path
