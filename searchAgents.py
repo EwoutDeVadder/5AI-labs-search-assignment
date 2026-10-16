@@ -288,6 +288,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.startingGameState = startingGameState
+        self.heuristicInfo = {}
 
     def getStartState(self):
         """
@@ -385,38 +387,22 @@ def cornersHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
 
-    shortest_distance:int = float("inf")
-    current_corner = tuple()
-    for corner in (corners not in state[1]):
-        distance = ((corner[0]-state[0][0])**2 + (corner[1]-state[0][1])**2)**0.5
-        if distance < shortest_distance:
-            shortest_distance = distance
-            current_corner = corner
+    pos, visited = state
 
-    visited_list = []
-    visited_list.append(current_corner)
-
-    shortest_corner_list = {}
-    for i in (corners not in state[1]):
-        prio_list = util.PriorityQueue()
-        for j in (corners not in state[1]):
-            distance = ((i[0] - j[0])**2 + (i[1] - j[1])**2)**0.5
-            prio_list.push(j, distance)
-        
-        shortest_corner_list[i] = prio_list
-
-    for i in range(len((corners not in state[1])) - 1):
-        next_corner = shortest_corner_list[current_corner].pop()
-        while next_corner in visited_list: 
-            if len(shortest_corner_list.items) == 0: break
-            next_corner = shortest_corner_list[current_corner].pop()
-            
-        shortest_distance += ((current_corner[0] - next_corner[0])**2 + (current_corner[1] - next_corner[1])**2)**0.5
-
-        current_corner = next_corner
-        visited_list.append(current_corner)
-
-    return shortest_distance # Default to trivial solution
+    remaining = list()
+    for c, v in zip(problem.corners, visited):
+        if not v:
+            remaining.append(c)
+    if not remaining:
+        return 0
+    cache = problem.heuristicInfo  # keeps info from previous calls, cache and heuristicInfo are the same object
+    best = 0
+    for c in remaining:
+        key = (pos, c)
+        if key not in cache:
+            cache[key] = mazeDistance(pos, c, problem.startingGameState)
+        best = max(best, cache[key])
+    return best
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
