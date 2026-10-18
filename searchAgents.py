@@ -380,29 +380,31 @@ def cornersHeuristic(state, problem):
 
     This function should always return a number that is a lower bound on the
     shortest path from the state to a goal of the problem; i.e.  it should be
-    admissible (as well as consistent).
+    admissible (as well as consistent).2
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
 
     pos, visited = state
 
     remaining = list()
-    for c, v in zip(problem.corners, visited):
-        if not v:
-            remaining.append(c)
+    for corner, indexVisited in zip(problem.corners, visited):
+        if not indexVisited:
+            remaining.append(corner)
+
     if not remaining:
         return 0
+    
     cache = problem.heuristicInfo  # keeps info from previous calls, cache and heuristicInfo are the same object
-    best = 0
-    for c in remaining:
-        key = (pos, c)
+    furthestCornerPath = 0
+    for corner in remaining:
+        key = (pos, corner)
         if key not in cache:
-            cache[key] = mazeDistance(pos, c, problem.startingGameState)
-        best = max(best, cache[key])
-    return best
+            cache[key] = mazeDistance(pos, corner, problem.startingGameState)
+
+        furthestCornerPath = max(furthestCornerPath, cache[key]) # atleast the cost to the farthest corner
+
+    return furthestCornerPath
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -494,9 +496,29 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    pos, foodGrid = state
+
+    remaining = list()
+    for food, indexVisited in zip(foodGrid.asList(), foodGrid):
+        if not indexVisited:
+            key = (pos, food)
+            if key not in cache:
+                remaining.append(food)
+
+    if not remaining:
+        return 0
+    
+    cache = problem.heuristicInfo  # keeps info from previous calls, cache and heuristicInfo are the same object
+    furthestFoodPath = 0
+    for food in remaining:
+        key = (pos, food)
+        if key not in cache:
+            cache[key] = mazeDistance(pos, food, problem.startingGameState)
+
+        furthestFoodPath = max(furthestFoodPath, cache[key]) # atleast the cost to the farthest corner
+
+    return furthestFoodPath
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
