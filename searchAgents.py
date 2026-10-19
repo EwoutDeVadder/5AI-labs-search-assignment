@@ -525,6 +525,7 @@ class ClosestDotSearchAgent(SearchAgent):
     def registerInitialState(self, state):
         self.actions = []
         currentState = state
+        startTime = time.time()
         while(currentState.getFood().count() > 0):
             nextPathSegment = self.findPathToClosestDot(currentState) # The missing piece
             self.actions += nextPathSegment
@@ -536,6 +537,8 @@ class ClosestDotSearchAgent(SearchAgent):
                 currentState = currentState.generateSuccessor(0, action)
         self.actionIndex = 0
         print('Path found with cost %d.' % len(self.actions))
+        print('Path found in %.1f seconds' % (time.time() - startTime))
+        print('Search nodes expanded: %d' % AnyFoodSearchProblem(currentState)._expanded)
 
     def findPathToClosestDot(self, gameState):
         """
@@ -549,7 +552,38 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+    
+        # basically bfs
+
+        if problem.isGoalState(startPosition):
+            return []
+
+        queue = util.Queue()
+        visited = set()
+
+        successors = problem.getSuccessors(startPosition)
+        for successor in successors:
+            queue.push((successor, [successor[1]]))
+        
+        visited.add(startPosition)
+        while not queue.isEmpty():
+            currentState, path = queue.pop()
+            #print(currentState[0], path)
+            
+            if problem.isGoalState(currentState[0]):
+                return path
+
+            # Avoid unnecessary calls NECESSARY here -> exponential calls, needs too much computing power if not added
+            if currentState[0] in visited: continue 
+
+            successors = problem.getSuccessors(currentState[0])
+            for successor in successors:
+                if not successor[0] in visited:
+                    queue.push((successor, path + [successor[1]]))
+            
+            visited.add(currentState[0])
+
+        return []
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -582,9 +616,11 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        x,y = state
 
         "*** YOUR CODE HERE ***"
+
+        return state in self.food.asList()
+
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
