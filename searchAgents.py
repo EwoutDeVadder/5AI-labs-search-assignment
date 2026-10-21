@@ -499,19 +499,13 @@ def foodHeuristic(state, problem):
     "*** YOUR CODE HERE ***"
     pos, foodGrid = state
 
-    remaining = list()
-    for food, indexVisited in zip(foodGrid.asList(), foodGrid):
-        if not indexVisited:
-            key = (pos, food)
-            if key not in cache:
-                remaining.append(food)
-
-    if not remaining:
+    foodList = foodGrid.asList()
+    if not foodList:
         return 0
     
     cache = problem.heuristicInfo  # keeps info from previous calls, cache and heuristicInfo are the same object
     furthestFoodPath = 0
-    for food in remaining:
+    for food in foodList:
         key = (pos, food)
         if key not in cache:
             cache[key] = mazeDistance(pos, food, problem.startingGameState)
@@ -552,38 +546,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-    
-        # basically bfs
 
-        if problem.isGoalState(startPosition):
-            return []
-
-        queue = util.Queue()
-        visited = set()
-
-        successors = problem.getSuccessors(startPosition)
-        for successor in successors:
-            queue.push((successor, [successor[1]]))
-        
-        visited.add(startPosition)
-        while not queue.isEmpty():
-            currentState, path = queue.pop()
-            #print(currentState[0], path)
-            
-            if problem.isGoalState(currentState[0]):
-                return path
-
-            # Avoid unnecessary calls NECESSARY here -> exponential calls, needs too much computing power if not added
-            if currentState[0] in visited: continue 
-
-            successors = problem.getSuccessors(currentState[0])
-            for successor in successors:
-                if not successor[0] in visited:
-                    queue.push((successor, path + [successor[1]]))
-            
-            visited.add(currentState[0])
-
-        return []
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
